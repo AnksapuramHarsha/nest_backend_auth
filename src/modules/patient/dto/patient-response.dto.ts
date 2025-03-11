@@ -1,0 +1,42 @@
+import { GenderIdentity} from '../entities/patient.entity';
+import { BiologicalSex} from '../entities/patient.entity';
+
+export class PatientResponseDto {
+    id!: string;
+    networkId!: string;
+    upid!: string;
+    abha?: string;
+    mrn?: string;
+    identifier?: Record<string, any>;
+    namePrefix?: string;
+    nameGiven!: string;
+    nameMiddle?: string;
+    nameFamily!: string;
+    nameSuffix?: string;
+    preferredName?: string;
+    birthDate!: Date | null;
+    deathDate?: Date | null;
+    genderIdentity?: GenderIdentity;
+    biologicalSex?: BiologicalSex;
+    preferredPronouns?: string;
+    address?: Record<string, any>;
+    contact?: Record<string, any>;
+    preferredLanguage?: string;
+    interpreterRequired!: boolean;
+    maritalStatus?: string;
+    race?: Record<string, any>;
+    ethnicity?: string;
+    emergencyContacts?: Record<string, any>;
+    preferredPharmacy?: string;
+    primaryCareProvider?: string;
+    active!: boolean;
+    preferences?: Record<string, any>;
+    bloodType?: string;
+    organDonor?: boolean;
+    advanceDirectives?: Record<string, any>;
+    createdBy!: string;
+    updatedBy!: string;
+    createdAt!: Date;
+    updatedAt!: Date;
+    version!: number;
+  }

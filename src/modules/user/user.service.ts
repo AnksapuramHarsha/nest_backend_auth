@@ -227,7 +227,7 @@ export class UserService {
   async findOne(findData: FindOptionsWhere<UserEntity>): Promise<UserEntity | null> {
     return this.userRepository.findOne({
       where: findData,
-      relations: ['role'],
+      select: ['id', 'email', 'password', 'role']  
     });
   }
 

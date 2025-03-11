@@ -1,7 +1,6 @@
 import { Transform, TransformationType } from 'class-transformer';
-import { parsePhoneNumber } from 'libphonenumber-js';
 import _ from 'lodash';
-
+import { parsePhoneNumber } from 'libphonenumber-js';
 import { GeneratorProvider } from '../providers/generator.provider.ts';
 
 /**
@@ -152,6 +151,20 @@ export function S3UrlParser(): PropertyDecorator {
   });
 }
 
+
 export function PhoneNumberSerializer(): PropertyDecorator {
-  return Transform((params) => parsePhoneNumber(params.value as string).number);
+  return Transform((params) => {
+    const phone = params.value as string;
+
+    // ✅ Safeguard against undefined/null/invalid data
+    if (!phone || typeof phone !== 'string') {
+      return null; // Or return `undefined` based on your logic
+    }
+
+    try {
+      return parsePhoneNumber(phone).number;
+    } catch (error) {
+      return null; // Or handle error logging if needed
+    }
+  });
 }

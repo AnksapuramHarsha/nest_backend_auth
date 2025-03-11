@@ -5,6 +5,7 @@ import {
   HttpCode,
   HttpStatus,
   Post,
+  Req,
   Version,
 } from '@nestjs/common';
 import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
@@ -37,7 +38,10 @@ export class AuthController {
   })
   async userLogin(
     @Body() userLoginDto: UserLoginDto,
+    @Req() req: Request,
   ): Promise<LoginPayloadDto> {
+    console.log('Incoming Data:', userLoginDto);
+    console.log('Incoming Data (Raw):', req.body);
     const userEntity = await this.authService.validateUser(userLoginDto);
 
     const token = await this.authService.createAccessToken({
