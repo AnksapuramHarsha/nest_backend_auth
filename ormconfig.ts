@@ -9,12 +9,12 @@ import { SnakeNamingStrategy } from './src/snake-naming.strategy';
 dotenv.config();
 
 export const dataSource = new DataSource({
-  type: 'postgres',
-  host: 'localhost',
-  port:  5432,
-  username: 'nest_user',
-  password: 'nest_password',
-  database: 'nest_sgpatientdb',
+    type: 'postgres',
+    host: process.env.DB_HOST,
+    port: Number(process.env.DB_PORT),
+    username: process.env.DB_USERNAME,
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_DATABASE,
   namingStrategy: new SnakeNamingStrategy(),
   subscribers: [UserSubscriber],
   entities: [
