@@ -5,15 +5,18 @@ import { Patient } from './entities/patient.entity';
 import { CreatePatientDto } from './dto/create-patient.dto';
 import { UpdatePatientDto } from './dto/update-patient.dto';
 import { PatientResponseDto } from './dto/patient-response.dto';
+import { PatientTranslation } from './entities/patient-translation.entity';
+import { UserEntity } from 'modules/user/user.entity';
 
 @Injectable()
 export class PatientService {
   constructor(
     @InjectRepository(Patient)
     private patientRepository: Repository<Patient>,
+    @InjectRepository(PatientTranslation) private translationRepo: Repository<PatientTranslation>,
   ) {}
 
-  async create(createPatientDto: CreatePatientDto): Promise<PatientResponseDto> {
+  async create(createPatientDto: CreatePatientDto,user: UserEntity, language: string): Promise<PatientResponseDto> {
     try {
       // Check if patient with same UPID exists in the network
       const existingPatient = await this.patientRepository.findOne({
@@ -34,14 +37,23 @@ export class PatientService {
         ...createPatientDto,
         birthDate: createPatientDto.birthDate ? new Date(createPatientDto.birthDate) : null,
         deathDate: createPatientDto.deathDate ? new Date(createPatientDto.deathDate) : null,
+        preferredLanguage: language,
+        createdBy: user.id,
       });
 
       const savedPatient = await this.patientRepository.save(patient);
-      return this.mapToResponseDto(savedPatient);
+
+      const translation = this.translationRepo.create({
+        patient: savedPatient,
+        language,
+        nameGiven: createPatientDto.nameGiven,
+        nameFamily: createPatientDto.nameFamily,
+        preferredName: createPatientDto.preferredName,
+      });
+      await this.translationRepo.save(translation);
+      return this.mapToResponseDto(savedPatient, language);
     } catch (error) {
-      if (error instanceof ConflictException) {
-        throw error;
-      }
+      if (error instanceof ConflictException) throw error;
       if (error instanceof Error) {
         throw new Error(`Failed to create patient: ${error.message}`);
       }
@@ -173,7 +185,9 @@ export class PatientService {
     return this.mapToResponseDto(restoredPatient);
   }
 
-  private mapToResponseDto(patient: Patient): PatientResponseDto {
+  private mapToResponseDto(patient: Patient, language?: string): PatientResponseDto {
+    const translation = patient.translations?.find(t => t.language === language);
+
     return {
       id: patient.id,
       networkId: patient.networkId,
@@ -182,11 +196,11 @@ export class PatientService {
       mrn: patient.mrn,
       identifier: patient.identifier,
       namePrefix: patient.namePrefix,
-      nameGiven: patient.nameGiven,
+      nameGiven: translation ? translation.nameGiven : patient.nameGiven,
       nameMiddle: patient.nameMiddle,
-      nameFamily: patient.nameFamily,
+      nameFamily: translation ? translation.nameFamily : patient.nameFamily,
       nameSuffix: patient.nameSuffix,
-      preferredName: patient.preferredName,
+      preferredName: translation ? translation.preferredName : patient.preferredName,
       birthDate: patient.birthDate,
       deathDate: patient.deathDate,
       genderIdentity: patient.genderIdentity,
@@ -212,6 +226,7 @@ export class PatientService {
       createdAt: patient.createdAt,
       updatedAt: patient.updatedAt,
       version: patient.version,
+      
     };
   }
 }

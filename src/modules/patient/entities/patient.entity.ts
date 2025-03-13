@@ -1,5 +1,6 @@
 // src/patient/entities/patient.entity.ts
-import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, Unique, VersionColumn } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, Unique, VersionColumn} from 'typeorm';
+import { PatientTranslation } from './patient-translation.entity';
 import { Network } from '../../network/entities/network.entity';
 import { UserEntity } from '../../user/user.entity';
 
@@ -148,11 +149,15 @@ export class Patient {
   @JoinColumn({ name: 'network_id' })
   network!: Network;
 
-  @ManyToOne(() => UserEntity)
+  @ManyToOne(() => UserEntity,{ nullable: true })
   @JoinColumn({ name: 'created_by' })
   creator!: UserEntity;
 
-  @ManyToOne(() => UserEntity)
+  @ManyToOne(() => UserEntity,{ nullable: true })
   @JoinColumn({ name: 'updated_by' })
   updater!: UserEntity;
+
+  @Column({ name: 'translations', type: 'json', nullable: true })
+  translations!: PatientTranslation[];
+
 }

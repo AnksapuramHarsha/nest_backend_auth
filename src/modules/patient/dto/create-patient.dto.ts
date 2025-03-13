@@ -228,12 +228,12 @@ export class CreatePatientDto {
   @IsOptional()
   advanceDirectives?: Record<string, any>;
 
-  @ApiProperty()
-  @IsUUID()
-  createdBy!: string;
+//   @ApiProperty()
+//   @IsUUID()
+     createdBy!: string;
 
-  @ApiProperty()
-  @IsUUID()
-  updatedBy!: string;
+//   @ApiProperty()
+//   @IsUUID()
+     updatedBy!: string;
 }
 

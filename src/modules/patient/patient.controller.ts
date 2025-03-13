@@ -6,10 +6,12 @@ import {
   import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
   import { PatientService } from './patient.service';
   import { CreatePatientDto } from './dto/create-patient.dto';
+
   import { UpdatePatientDto } from './dto/update-patient.dto';
   import { PatientResponseDto } from './dto/patient-response.dto';
   import { JwtAuthGuard } from '../../guards/jwt-auth.guard';
-  
+
+
   @ApiTags('patients')
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
@@ -27,9 +29,32 @@ import {
         @Request() req: RequestWithUser
     ): Promise<PatientResponseDto> {
       // Set created and updated by from the authenticated user
-      createPatientDto.createdBy = req.user.id;
-      createPatientDto.updatedBy = req.user.id;
-      return this.patientService.create(createPatientDto);
+        const userId = req.user.id ;
+    //   const userEntity: UserEntity = {
+    //     ...req.user,
+    //     firstName: '', // Add appropriate values
+    //     lastName: '',  // Add appropriate values
+    //     email: '',     // Add appropriate values
+    //     password: '',  // Add appropriate values
+    //     phone: '',     // Add appropriate values
+    //     avatar: '',    // Add appropriate values
+    //     fullName: '',  // Add appropriate values
+    //     createdAt: new Date(), // Add appropriate values
+    //     updatedAt: new Date(), // Add appropriate values
+    //     role: req.user.role as RoleType,
+    //     id: req.user.id as unknown as Uuid,
+    //     toDto: () => ({
+    //       username: req.user.username,
+    //       id: req.user.id as unknown as Uuid,
+    //       createdAt: new Date(),
+    //       updatedAt: new Date(),
+    //     }),
+    //   };
+    return this.patientService.create(
+        { ...createPatientDto, createdBy: userId, updatedBy: userId }, 
+        req.user, 
+        'en'
+    );
     }
   
     @Get()
