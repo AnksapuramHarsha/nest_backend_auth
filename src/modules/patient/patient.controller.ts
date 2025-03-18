@@ -1,16 +1,16 @@
 import { 
-    Controller, Get, Post, Body, Patch, Param, Delete, 
+    Controller, Get, Post,Put, Body, Patch, Param, Delete, 
     UseGuards, Query, HttpCode, HttpStatus, ParseUUIDPipe, Request,
   } from '@nestjs/common';
   import type { RequestWithUser } from '../../interfaces/request-with-user.interface';
   import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
   import { PatientService } from './patient.service';
-  import { CreatePatientDto } from './dto/create-patient.dto';
+  import { CreateContactDTO, CreatePatientDto } from './dto/create-patient.dto';
 
   import { UpdatePatientDto } from './dto/update-patient.dto';
   import { PatientResponseDto } from './dto/patient-response.dto';
   import { JwtAuthGuard } from '../../guards/jwt-auth.guard';
-
+//   import { ContactDTO } from './dto/create-patient.dto';
 
   @ApiTags('patients')
   @ApiBearerAuth()
@@ -131,4 +131,29 @@ import {
     ): Promise<PatientResponseDto> {
       return this.patientService.restore(id, req.user.id);
     }
+
+
+  // ✅ Get only the contact details of a patient
+  @ApiOperation({ summary: 'Get contact details of a patient' })
+  @ApiResponse({ status: 200, description: 'Returns contact details' })
+  @Get(':id/contact')
+  getContact(@Param('id') id: string) {
+    return this.patientService.getContact(id);
+  }
+
+  // ✅ Update contact details (partial update)
+  @ApiOperation({ summary: 'Update contact details' })
+  @ApiResponse({ status: 200, description: 'Contact updated successfully' })
+  @Put(':id/contact')
+  updateContact(@Param('id') id: string, @Body() contactDto: CreateContactDTO) {
+    return this.patientService.updateContact(id, contactDto);
+  }
+
+  // ✅ Delete only the contact details
+  @ApiOperation({ summary: 'Delete contact details of a patient' })
+  @ApiResponse({ status: 200, description: 'Contact deleted successfully' })
+  @Delete(':id/contact')
+  deleteContact(@Param('id') id: string) {
+    return this.patientService.deleteContact(id);
+  }
   }

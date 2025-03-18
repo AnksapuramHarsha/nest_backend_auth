@@ -2,11 +2,12 @@ import { Injectable, NotFoundException, ConflictException } from '@nestjs/common
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Patient } from './entities/patient.entity';
-import { CreatePatientDto } from './dto/create-patient.dto';
+import { CreateContactDTO, CreatePatientDto } from './dto/create-patient.dto';
 import { UpdatePatientDto } from './dto/update-patient.dto';
 import { PatientResponseDto } from './dto/patient-response.dto';
 import { PatientTranslation } from './entities/patient-translation.entity';
 import { UserEntity } from 'modules/user/user.entity';
+import { ContactDTO } from './dto/create-patient.dto';
 
 @Injectable()
 export class PatientService {
@@ -229,4 +230,43 @@ export class PatientService {
       
     };
   }
+
+
+
+  // ✅ Get only the contact details
+  async getContact(id: string): Promise<ContactDTO | null> {
+    const patient = await this.getPatientById(id);
+    return patient.contact || null;
+  }
+
+  // ✅ Update contact details (merge existing)
+  async updateContact(id: string, contactDto: CreateContactDTO): Promise<Patient> {
+    const patient = await this.getPatientById(id);
+    if (!patient.contact) {
+        patient.contact = {};
+      }
+      patient.contact.phone = contactDto.phone ?? patient.contact.phone;
+      patient.contact.mobilePhone = contactDto.mobilePhone ?? patient.contact.mobilePhone;
+    
+      return this.patientRepository.save(patient);
+  }
+
+  // ✅ Delete contact details (set contact to null)
+  async deleteContact(id: string): Promise<Patient> {
+    const patient = await this.getPatientById(id);
+    if (!patient.contact) {
+        throw new NotFoundException('Contact details not found');
+      }
+    
+      patient.contact = null;  // ✅ Properly removes the contact details
+      return this.patientRepository.save(patient);
+  }
+
+  // ✅ Private helper method to fetch a patient by ID
+  private async getPatientById(id: string): Promise<Patient> {
+    const patient = await this.patientRepository.findOne({ where: { id } });
+    if (!patient) throw new NotFoundException('Patient not found');
+    return patient;
+  }
+
 }

@@ -20,7 +20,7 @@ export class PatientResponseDto {
     biologicalSex?: BiologicalSex;
     preferredPronouns?: string;
     address?: Record<string, any>;
-    contact?: Record<string, any>;
+    contact?: Record<string, any> | null;
     preferredLanguage?: string;
     interpreterRequired!: boolean;
     maritalStatus?: string;

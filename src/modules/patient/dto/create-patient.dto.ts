@@ -52,6 +52,19 @@ export class ContactDTO {
   mobilePhone?: string;
 }
 
+export class CreateContactDTO {
+    @ApiPropertyOptional()
+    @IsString()
+    @IsOptional()
+    phone?: string;
+  
+    @ApiPropertyOptional()
+    @IsString()
+    @IsOptional()
+    mobilePhone?: string;
+  }
+  
+
 export class EmergencyContactDTO {
   @ApiProperty()
   @IsString()

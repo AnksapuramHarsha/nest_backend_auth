@@ -89,7 +89,7 @@ export class Patient {
   address?: Record<string, any>;
 
   @Column({ name: 'contact', type: 'json', nullable: true })
-  contact?: Record<string, any>;
+  contact?: Record<string, any> | null;
 
   @Column({ name: 'preferred_language', length: 50, nullable: true })
   preferredLanguage?: string;
