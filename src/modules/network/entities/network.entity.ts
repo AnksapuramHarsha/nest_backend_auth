@@ -1,19 +1,27 @@
-import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, OneToMany, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+import { Organization } from '../../organization/entities/organization.entity';
+import { Configuration } from '../../config/entities/config.entity';
 
-@Entity('network')
+@Entity('networks')
 export class Network {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
 
-  @Column({ name: 'name', length: 200 })
+  @Column()
   name!: string;
 
-  @Column({ name: 'is_active', default: true })
-  isActive!: boolean;
+  @Column({ nullable: true })
+  description!: string;
 
-  @CreateDateColumn({ name: 'created_at' })
+  @OneToMany(() => Organization, organization => organization.network)
+  organizations!: Organization[];
+
+  @OneToMany(() => Configuration, config => config.network)
+  configurations!: Configuration[];
+
+  @CreateDateColumn()
   createdAt!: Date;
 
-  @UpdateDateColumn({ name: 'updated_at' })
+  @UpdateDateColumn()
   updatedAt!: Date;
 }
