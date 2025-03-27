@@ -10,6 +10,9 @@ import { UserEntity } from 'modules/user/user.entity';
 import { ContactDTO } from './dto/create-patient.dto';
 import { Configuration } from '../config/entities/config.entity'; // Adjust the path as needed
 import { PatientRegistrationStatus } from './entities/patient-registration-status.entity';
+import { Organization } from '../organization/entities/organization.entity'; // Adjust the path as needed
+import { Network } from '../network/entities/network.entity'; // Adjust the path as needed
+
 
 @Injectable()
 export class PatientService {
@@ -22,13 +25,19 @@ export class PatientService {
     private patientRegistrationStatusRepository: Repository<PatientRegistrationStatus>,
     @InjectRepository(Configuration) 
     private readonly configRepository: Repository<Configuration>,
+    @InjectRepository(Organization)
+    private readonly organizationRepository: Repository<Organization>,
+    @InjectRepository(Network)
+    private readonly networkRepository: Repository<Network>
   ) {}
 
   async generateUPID(patient: Patient): Promise<string> {
     console.log("🚀 generateUPID() running...");
 
     const config = await this.configRepository.findOne({
-      where: { category: 'upid', key: 'format' },
+      where: { category: 'upid', key: 'format',
+        networkId: patient.networkId,           // ✅ explicitly include
+        organizationId: patient.organizationId, },
     });
 
     if (!config || !config.value?.format) {
@@ -76,6 +85,20 @@ export class PatientService {
       // Check if patient with same UPID exists in the network
       
         console.log(createPatientDto);
+        const organization = await this.organizationRepository.findOne({
+            where: { id: createPatientDto.organizationId },
+          });
+
+          if (!organization) {
+            throw new Error(`Organization with id ${createPatientDto.organizationId} not found`);
+          }
+
+          const network = await this.networkRepository.findOne({
+            where: { id: createPatientDto.networkId },
+          });
+          if (!network) {
+            throw new Error(`Network with id ${createPatientDto.networkId} not found`);
+          }
       
 
       // Process dates
@@ -86,6 +109,8 @@ export class PatientService {
         preferredLanguage: language,
         createdBy: user.id,
         updatedBy: user.id,
+        organization: organization,  // ✅ explicitly assigned
+        network: network,
         // Set default status to NEW (statusId: 1)
         statusId: createPatientDto.statusId || 1,
       });
@@ -101,6 +126,7 @@ export class PatientService {
         nameGiven: createPatientDto.nameGiven,
         nameFamily: createPatientDto.nameFamily,
         preferredName: createPatientDto.preferredName,
+        
       });
       await this.translationRepo.save(translation);
       return this.mapToResponseDto(savedPatient, language);
@@ -301,8 +327,8 @@ export class PatientService {
       race: patient.race,
       ethnicity: patient.ethnicity,
       emergencyContacts: patient.emergencyContacts,
-      preferredPharmacy: patient.preferredPharmacy,
-      primaryCareProvider: patient.primaryCareProvider,
+    //   preferredPharmacy: patient.preferredPharmacy,
+    //   primaryCareProvider: patient.primaryCareProvider,
       active: patient.active,
       preferences: patient.preferences,
       bloodType: patient.bloodType,

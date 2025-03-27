@@ -129,11 +129,11 @@ organization!: Organization;
   @Column({ name: 'emergency_contacts', type: 'json', nullable: true })
   emergencyContacts?: Record<string, any>;
 
-  @Column({ name: 'preferred_pharmacy', type: 'uuid', nullable: true })
-  preferredPharmacy?: string;
+//   @Column({ name: 'preferred_pharmacy', type: 'uuid', nullable: true })
+//   preferredPharmacy?: string;
 
-  @Column({ name: 'primary_care_provider', type: 'uuid', nullable: true })
-  primaryCareProvider?: string;
+//   @Column({ name: 'primary_care_provider', type: 'uuid', nullable: true })
+//   primaryCareProvider?: string;
 
   @Column({ name: 'active', type: 'boolean', default: true })
   active!: boolean;
@@ -183,10 +183,13 @@ organization!: Organization;
   @Column({ name: 'translations', type: 'json', nullable: true })
   translations!: PatientTranslation[];
 
-  @ManyToOne(() => PatientRegistrationStatus, { nullable: true })
+//   @ManyToOne(() => PatientRegistrationStatus, { nullable: true })
   @JoinColumn({ name: 'status_id' })
   registrationStatus?: PatientRegistrationStatus;
 
+  @Column({ name: 'organization_id', type: 'uuid' })
+organizationId!: string;
+
   
 
-}
+} 

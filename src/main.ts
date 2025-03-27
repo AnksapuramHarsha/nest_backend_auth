@@ -37,6 +37,7 @@ export async function bootstrap(): Promise<NestExpressApplication> {
   app.use(compression());
   app.use(morgan('combined'));
   app.enableVersioning();
+  app.enableCors();
 
   const reflector = app.get(Reflector);
 
@@ -92,7 +93,7 @@ export async function bootstrap(): Promise<NestExpressApplication> {
 
 //   if ((<any>import.meta).env.PROD) {
      //await app.listen(port);
-     await app.listen(3000, '127.0.0.1')
+     await app.listen(3000, '0.0.0.0')
      console.info(`server running on ${await app.getUrl()}`);
 //   }
 

@@ -222,6 +222,10 @@ export class CreatePatientDto {
   @IsUUID()
   @IsOptional()
   updatedBy!: string;
+
+  @IsUUID()
+  @IsNotEmpty()
+  organizationId!: string;
 }
 
 

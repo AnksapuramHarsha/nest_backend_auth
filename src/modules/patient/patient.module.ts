@@ -8,10 +8,11 @@ import { PatientRegistrationStatus } from './entities/patient-registration-statu
 import { PatientRegistrationStatusController } from './patient-registration-status-controller';
 import { PatientRegistrationStatusService } from './patient-registration-status-service';
 import { Configuration } from '../config/entities/config.entity';
-
+import { Organization } from '../organization/entities/organization.entity';
+import { Network } from '../network/entities/network.entity';
 @Module({
     imports: [
-        TypeOrmModule.forFeature([Patient, PatientTranslation, PatientRegistrationStatus, Configuration]),
+        TypeOrmModule.forFeature([Patient, PatientTranslation, PatientRegistrationStatus, Configuration, Organization, Network]),
       ],
   controllers: [PatientController, PatientRegistrationStatusController],
   providers: [PatientService, PatientRegistrationStatusService],
