@@ -27,6 +27,27 @@ export class ConfigService {
     return parts.join(':');
   }
 
+  async getUPIDFormat() {
+    const config = await this.configRepository.findOne({ where: { category: 'upid', key: 'format' } });
+    return config ? config.value : { format: '', components: [] };
+  }
+
+  
+  async updateUPIDFormat(format: string, components: string[]) {
+    let config = await this.configRepository.findOne({ where: { category: 'upid', key: 'format' } });
+
+    if (!config) {
+      config = new Configuration();
+      config.category = 'upid';
+      config.key = 'format';
+    }
+
+    config.value = { format, components, uniqueCounter: config.value?.uniqueCounter || 1 };
+    await this.configRepository.save(config);
+
+    return { message: 'UPID format updated successfully', format, components };
+  }
+
   async create(createConfigDto: CreateConfigDto, userId: string): Promise<Configuration> {
     // Check if configuration already exists
     const existing = await this.configRepository.findOne({

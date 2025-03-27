@@ -21,6 +21,8 @@ import { SharedModule } from './shared/shared.module';
 import { PatientModule } from './modules/patient/patient.module';
 import { ConfigModule } from './modules/config/config.module';
 import { OrganizationModule } from './modules/organization/organization.module';
+import { VerificationModule } from './modules/verification/verification.module';
+
 
 @Module({
   imports: [
@@ -30,6 +32,8 @@ import { OrganizationModule } from './modules/organization/organization.module';
     OrganizationModule,  // ✅ OrganizationModule only once
     ConfigModule,        // ✅ ConfigModule only once
     SharedModule,
+    VerificationModule,
+
     
     ClsModule.forRoot({
       global: true,

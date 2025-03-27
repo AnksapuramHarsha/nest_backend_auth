@@ -1,9 +1,13 @@
 // src/patient/dto/create-patient.dto.ts
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { Type } from 'class-transformer';
+
 import { 
   IsUUID, IsNotEmpty, IsString, IsOptional, 
-   IsBoolean, IsObject, ValidateNested, IsISO8601
+   IsBoolean, IsObject,
+   IsDate,
+   IsEnum,
+   IsNumber,
+   IsDateString
 } from 'class-validator';
 import { GenderIdentity, BiologicalSex } from '../entities/patient.entity';
 
@@ -84,169 +88,141 @@ export class EmergencyContactDTO {
   email?: string;
 }
 
+// src/patient/dto/create-patient.dto.ts
+
 export class CreatePatientDto {
-  @ApiProperty()
   @IsUUID()
+  @IsNotEmpty()
   networkId!: string;
 
-  @ApiProperty()
-  @IsString()
-  @IsNotEmpty()
-  upid!: string;
-
-  @ApiPropertyOptional()
   @IsString()
   @IsOptional()
   abha?: string;
 
-  @ApiPropertyOptional()
   @IsString()
   @IsOptional()
   mrn?: string;
-
-  @ApiPropertyOptional()
+  
   @IsObject()
   @IsOptional()
   identifier?: Record<string, any>;
 
-  @ApiPropertyOptional()
   @IsString()
   @IsOptional()
   namePrefix?: string;
 
-  @ApiProperty()
   @IsString()
   @IsNotEmpty()
   nameGiven!: string;
 
-  @ApiPropertyOptional()
   @IsString()
   @IsOptional()
   nameMiddle?: string;
 
-  @ApiProperty()
   @IsString()
   @IsNotEmpty()
   nameFamily!: string;
 
-  @ApiPropertyOptional()
   @IsString()
   @IsOptional()
   nameSuffix?: string;
 
-  @ApiPropertyOptional()
   @IsString()
   @IsOptional()
   preferredName?: string;
 
-  @ApiProperty()
-  @IsISO8601()
-  birthDate!: Date ;
+  @IsDateString()
+  @IsNotEmpty()
+  birthDate!: Date;
 
-  @ApiPropertyOptional()
-  @IsISO8601()
+  @IsDate()
   @IsOptional()
-  deathDate?: Date ;
+  deathDate?: Date;
 
-  @ApiProperty({ enum: GenderIdentity, enumName: 'GenderIdentity' })
+  @IsEnum(GenderIdentity)
   @IsOptional()
   genderIdentity?: GenderIdentity;
 
-  @ApiProperty({ enum: BiologicalSex, enumName: 'BiologicalSex' })
+  @IsEnum(BiologicalSex)
   @IsOptional()
   biologicalSex?: BiologicalSex;
 
-  @ApiPropertyOptional()
   @IsString()
   @IsOptional()
   preferredPronouns?: string;
 
-  @ApiPropertyOptional()
   @IsObject()
-  @ValidateNested()
-  @Type(() => AddressDto)
   @IsOptional()
-  address?: AddressDto;
+  address?: Record<string, any>;
 
-  @ApiPropertyOptional()
   @IsObject()
-  @ValidateNested()
-  @Type(() => ContactDTO)
   @IsOptional()
-  contact?: ContactDTO;
+  contact?: Record<string, any>;
 
-  @ApiPropertyOptional()
   @IsString()
   @IsOptional()
   preferredLanguage?: string;
 
-  @ApiPropertyOptional()
   @IsBoolean()
   @IsOptional()
   interpreterRequired?: boolean;
 
-  @ApiPropertyOptional()
   @IsString()
   @IsOptional()
   maritalStatus?: string;
 
-  @ApiPropertyOptional()
   @IsObject()
   @IsOptional()
   race?: Record<string, any>;
 
-  @ApiPropertyOptional()
   @IsString()
   @IsOptional()
   ethnicity?: string;
 
-  @ApiPropertyOptional()
-  @ValidateNested({ each: true })
-  @Type(() => EmergencyContactDTO)
+  @IsObject()
   @IsOptional()
-  emergencyContacts?: EmergencyContactDTO[];
+  emergencyContacts?: Record<string, any>;
 
-  @ApiPropertyOptional()
   @IsUUID()
   @IsOptional()
   preferredPharmacy?: string;
 
-  @ApiPropertyOptional()
   @IsUUID()
   @IsOptional()
   primaryCareProvider?: string;
 
-  @ApiPropertyOptional()
   @IsBoolean()
   @IsOptional()
-  active?: boolean = true;
+  active?: boolean;
 
-  @ApiPropertyOptional()
   @IsObject()
   @IsOptional()
   preferences?: Record<string, any>;
 
-  @ApiPropertyOptional()
   @IsString()
   @IsOptional()
   bloodType?: string;
 
-  @ApiPropertyOptional()
   @IsBoolean()
   @IsOptional()
   organDonor?: boolean;
 
-  @ApiPropertyOptional()
   @IsObject()
   @IsOptional()
   advanceDirectives?: Record<string, any>;
 
-//   @ApiProperty()
-//   @IsUUID()
-     createdBy!: string;
+  @IsNumber()
+  @IsOptional()
+  statusId?: number;
 
-//   @ApiProperty()
-//   @IsUUID()
-     updatedBy!: string;
+  @IsUUID()
+  @IsOptional()
+  createdBy!: string;
+
+  @IsUUID()
+  @IsOptional()
+  updatedBy!: string;
 }
+
+
 

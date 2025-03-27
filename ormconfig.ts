@@ -24,4 +24,12 @@ export const dataSource = new DataSource({
   migrations: ['src/database/migrations/*{.ts,.js}'],
   synchronize: false,
   logging: true,
+  extra: {
+    authkey: {
+      apiKey: process.env.SMS_API_KEY,
+      senderId: process.env.SMS_SENDER_ID,
+      templateId: process.env.SMS_TEMPLATE_ID,
+      entityId: process.env.SMS_ENTITY_ID,
+    },
+  },
 });

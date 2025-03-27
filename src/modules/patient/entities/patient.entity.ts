@@ -1,8 +1,12 @@
 // src/patient/entities/patient.entity.ts
-import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, Unique, VersionColumn} from 'typeorm';
+import { Column, Entity, JoinColumn,ManyToOne,  CreateDateColumn, UpdateDateColumn, Unique, VersionColumn, PrimaryColumn } from 'typeorm';
 import { PatientTranslation } from './patient-translation.entity';
+import { Organization } from '../../organization/entities/organization.entity';
 import { Network } from '../../network/entities/network.entity';
 import { UserEntity } from '../../user/user.entity';
+import { PatientRegistrationStatus } from './patient-registration-status.entity';
+
+
 
 export enum GenderIdentity {
     MALE = 'male',
@@ -24,14 +28,13 @@ export enum BiologicalSex {
 @Entity('patient')
 @Unique(['networkId', 'upid'])
 export class Patient {
-  @PrimaryGeneratedColumn('uuid')
-  id!: string;
+
+
+  @PrimaryColumn({ name: 'upid', type: 'varchar', length: 50}) // ✅ UPID is now the primary key
+  upid!: string;
 
   @Column({ name: 'network_id', type: 'uuid' })
   networkId!: string;
-
-  @Column({ name: 'upid', length: 50 })
-  upid!: string;
 
   @Column({ name: 'abha', length: 50, nullable: true })
   abha?: string;
@@ -88,8 +91,25 @@ export class Patient {
   @Column({ name: 'address', type: 'json', nullable: true })
   address?: Record<string, any>;
 
+  @ManyToOne(() => Organization, { nullable: false })
+@JoinColumn({ name: 'organization_id' })
+organization!: Organization;
+
   @Column({ name: 'contact', type: 'json', nullable: true })
   contact?: Record<string, any> | null;
+
+  // New verification fields
+  @Column({ name: 'phone_verified', type: 'boolean', default: false })
+  phoneVerified!: boolean;
+
+  @Column({ name: 'phone_verified_at', type: 'timestamp', nullable: true })
+  phoneVerifiedAt?: Date;
+
+  @Column({ name: 'email_verified', type: 'boolean', default: false })
+  emailVerified!: boolean;
+
+  @Column({ name: 'email_verified_at', type: 'timestamp', nullable: true })
+  emailVerifiedAt?: Date;
 
   @Column({ name: 'preferred_language', length: 50, nullable: true })
   preferredLanguage?: string;
@@ -130,6 +150,9 @@ export class Patient {
   @Column({ name: 'advance_directives', type: 'json', nullable: true })
   advanceDirectives?: Record<string, any>;
 
+  @Column({ name: 'status_id', type: 'int', nullable: true })
+  statusId?: number;
+
   @Column({ name: 'created_by', type: 'uuid' })
   createdBy!: string;
 
@@ -149,15 +172,21 @@ export class Patient {
   @JoinColumn({ name: 'network_id' })
   network!: Network;
 
-  @ManyToOne(() => UserEntity,{ nullable: true })
+  @ManyToOne(() => UserEntity, { nullable: true })
   @JoinColumn({ name: 'created_by' })
   creator!: UserEntity;
 
-  @ManyToOne(() => UserEntity,{ nullable: true })
+  @ManyToOne(() => UserEntity, { nullable: true })
   @JoinColumn({ name: 'updated_by' })
   updater!: UserEntity;
 
   @Column({ name: 'translations', type: 'json', nullable: true })
   translations!: PatientTranslation[];
+
+  @ManyToOne(() => PatientRegistrationStatus, { nullable: true })
+  @JoinColumn({ name: 'status_id' })
+  registrationStatus?: PatientRegistrationStatus;
+
+  
 
 }

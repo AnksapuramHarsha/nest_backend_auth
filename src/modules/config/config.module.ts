@@ -16,6 +16,7 @@ import { CacheService } from '../../common/services/cache.service'; // Adjust th
   exports: [
     ConfigService,
     CacheService, // ✅ Export CacheService for use in other modules
+    TypeOrmModule
   ],
 })
 export class ConfigModule {}

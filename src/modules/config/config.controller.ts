@@ -158,4 +158,37 @@ export class ConfigController {
     return this.configService.resetToParent(category, key, queryDto, req.user.id);
   }
 
+  @Post('upid/update')
+  @ApiOperation({ summary: 'Update UPID format', description: 'Admin selects components for UPID generation' })
+  @ApiResponse({ status: 200, description: 'UPID format updated successfully' })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        format: { type: 'string', example: 'PAT-${ORG}-${NET}-${USER}-${UNIQUE}' },
+        components: {
+          type: 'array',
+          items: { type: 'string' },
+          example: ["ORG", "NET", "USER", "UNIQUE"]
+        }
+      },
+    },
+  })
+  async updateUPIDFormat(
+    @Body('format') format: string,
+    @Body('components') components: string[]
+  ) {
+    return this.configService.updateUPIDFormat(format, components);
+  }
+
+  /**
+   * ✅ Get UPID format
+   */
+  @Get('upid')
+  @ApiOperation({ summary: 'Get UPID format', description: 'Retrieve the UPID format configuration' })
+  @ApiResponse({ status: 200, description: 'UPID format retrieved successfully' })
+  async getUPIDFormat() {
+    return this.configService.getUPIDFormat();
+  }
+
 }
