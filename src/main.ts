@@ -31,9 +31,17 @@ export async function bootstrap(): Promise<NestExpressApplication> {
     new ExpressAdapter(),
     { cors: true },
   );
+
   app.enable('trust proxy'); // only if you're behind a reverse proxy (Heroku, Bluemix, AWS ELB, Nginx, etc)
-  app.use(helmet());
-  // app.setGlobalPrefix('/api'); use api as global prefix if you don't have subdomain
+
+  app.use(
+    helmet({
+      hsts: false, // Don't enforce HTTPS
+      crossOriginOpenerPolicy: { policy: 'same-origin-allow-popups' },
+      originAgentCluster: false, // Disable Origin-Agent-Cluster header
+    }),
+  );
+
   app.use(compression());
   app.use(morgan('combined'));
   app.enableVersioning();
@@ -89,14 +97,9 @@ export async function bootstrap(): Promise<NestExpressApplication> {
     app.enableShutdownHooks();
   }
 
-//  const port = configService.appConfig.port;
-
-//   if ((<any>import.meta).env.PROD) {
-     //await app.listen(port);
-     await app.listen(3000, '0.0.0.0')
-     console.info(`server running on ${await app.getUrl()}`);
-//   }
-
+  // Start the server
+  await app.listen(3000, '0.0.0.0');
+  console.info(`server running on ${await app.getUrl()}`);
 
   return app;
 }
