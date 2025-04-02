@@ -134,7 +134,7 @@ export class PatientService {
   async findByNetwork(networkId: string): Promise<PatientResponseDto[]> {
     const patients = await this.patientRepository.find({
       where: { network: { id: networkId } },
-      relations: ['registrationStatus'],
+      relations: ['network'],
       order: {
         nameFamily: 'ASC',
         nameGiven: 'ASC',
@@ -147,9 +147,9 @@ export class PatientService {
   async findOne(upid: string): Promise<PatientResponseDto> {
     const patient = await this.patientRepository.findOne({
       where: { upid },
-      relations: ['registrationStatus'],
+      relations: ['network']
     });
-    
+    console.log('Fetched patient from DB:', patient); // <-- log this
     if (!patient) {
       throw new NotFoundException(`Patient with ID ${upid} not found`);
     }
@@ -163,7 +163,7 @@ export class PatientService {
         network: { id: networkId },
         upid,
       },
-      relations: ['registrationStatus'],
+      relations: ['network'], 
     });
     
     if (!patient) {
@@ -176,7 +176,7 @@ export class PatientService {
   async update(upid: string, updatePatientDto: UpdatePatientDto): Promise<PatientResponseDto> {
     const patient = await this.patientRepository.findOne({
       where: { upid },
-      relations: ['registrationStatus'],
+      relations: ['network'],
     });
     
     if (!patient) {
@@ -362,7 +362,6 @@ export class PatientService {
   private async getPatientById(upid: string): Promise<Patient> {
     const patient = await this.patientRepository.findOne({ 
       where: { upid },
-      relations: ['registrationStatus'],
     });
     if (!patient) throw new NotFoundException('Patient not found');
     return patient;
@@ -371,7 +370,6 @@ export class PatientService {
   async findByStatus(statusId: number): Promise<PatientResponseDto[]> {
     const patients = await this.patientRepository.find({
       where: { statusId },
-      relations: ['registrationStatus'],
       order: {
         nameFamily: 'ASC',
         nameGiven: 'ASC',

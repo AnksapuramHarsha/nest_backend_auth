@@ -1,6 +1,6 @@
 import { 
     Controller, Get, Post,Put, Body, Patch, Param, Delete, 
-    UseGuards, Query, HttpCode, HttpStatus, ParseUUIDPipe, Request,
+    UseGuards, Query, HttpCode, HttpStatus, ParseUUIDPipe, Request, Header
   } from '@nestjs/common';
   import type { RequestWithUser } from '../../interfaces/request-with-user.interface';
   import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
@@ -49,12 +49,13 @@ import {
       return this.patientService.findAll();
     }
   
-    @Get(':id')
+    @Get(':upid')
     @ApiOperation({ summary: 'Get a patient by ID' })
     @ApiResponse({ status: 200, description: 'Return the patient', type: PatientResponseDto })
     @ApiResponse({ status: 404, description: 'Patient not found' })
-    async findOne(@Param('id', ParseUUIDPipe) id: string): Promise<PatientResponseDto> {
-      return this.patientService.findOne(id);
+    @Header('Cache-Control', 'no-store') 
+    async findOne(@Param('upid') upid: string): Promise<PatientResponseDto> {
+      return this.patientService.findOne(upid);
     }
   
     @Get('network/:networkId/upid/:upid')
@@ -68,74 +69,74 @@ import {
       return this.patientService.findByUpid(networkId, upid);
     }
   
-    @Patch(':id')
+    @Patch(':upid')
     @ApiOperation({ summary: 'Update a patient' })
     @ApiResponse({ status: 200, description: 'Patient updated successfully', type: PatientResponseDto })
     @ApiResponse({ status: 404, description: 'Patient not found' })
     async update(
-      @Param('id', ParseUUIDPipe) id: string, 
+      @Param('upid') upid: string, 
       @Body() updatePatientDto: UpdatePatientDto,
       @Request() req: RequestWithUser,
     ): Promise<PatientResponseDto> {
       // Set updated by from the authenticated user
       updatePatientDto.updatedBy = req.user.id;
-      return this.patientService.update(id, updatePatientDto);
+      return this.patientService.update(upid, {...updatePatientDto, updatedBy: req.user.id });
     }
   
-    @Delete(':id')
+    @Delete(':upid')
     @ApiOperation({ summary: 'Delete a patient (hard delete)' })
     @ApiResponse({ status: 204, description: 'Patient deleted successfully' })
     @ApiResponse({ status: 404, description: 'Patient not found' })
     @HttpCode(HttpStatus.NO_CONTENT)
-    async remove(@Param('id', ParseUUIDPipe) id: string): Promise<void> {
-      return this.patientService.remove(id);
+    async remove(@Param('upid') upid: string): Promise<void> {
+      return this.patientService.remove(upid);
     }
   
-    @Patch(':id/deactivate')
+    @Patch(':upid/deactivate')
     @ApiOperation({ summary: 'Soft delete a patient' })
     @ApiResponse({ status: 204, description: 'Patient deactivated successfully' })
     @ApiResponse({ status: 404, description: 'Patient not found' })
     @HttpCode(HttpStatus.NO_CONTENT)
     async deactivate(
-      @Param('id', ParseUUIDPipe) id: string,
+      @Param('upid') upid: string,
       @Request() req: RequestWithUser,
     ): Promise<void> {
-      return this.patientService.softDelete(id, req.user.id);
+      return this.patientService.softDelete(upid, req.user.id);
     }
   
-    @Patch(':id/activate')
+    @Patch(':upid/activate')
     @ApiOperation({ summary: 'Restore a soft-deleted patient' })
     @ApiResponse({ status: 200, description: 'Patient restored successfully', type: PatientResponseDto })
     @ApiResponse({ status: 404, description: 'Patient not found' })
     async activate(
-      @Param('id', ParseUUIDPipe) id: string,
+      @Param('upid') upid: string,
       @Request() req: RequestWithUser,
     ): Promise<PatientResponseDto> {
-      return this.patientService.restore(id, req.user.id);
+      return this.patientService.restore(upid, req.user.id);
     }
 
 
   // ✅ Get only the contact details of a patient
   @ApiOperation({ summary: 'Get contact details of a patient' })
   @ApiResponse({ status: 200, description: 'Returns contact details' })
-  @Get(':id/contact')
-  getContact(@Param('id') id: string) {
-    return this.patientService.getContact(id);
+  @Get(':upid/contact')
+  getContact(@Param('upid') upid: string) {
+    return this.patientService.getContact(upid);
   }
 
   // ✅ Update contact details (partial update)
   @ApiOperation({ summary: 'Update contact details' })
   @ApiResponse({ status: 200, description: 'Contact updated successfully' })
-  @Put(':id/contact')
-  updateContact(@Param('id') id: string, @Body() contactDto: CreateContactDTO) {
-    return this.patientService.updateContact(id, contactDto);
+  @Put(':upid/contact')
+  updateContact(@Param('upid') upid: string, @Body() contactDto: CreateContactDTO) {
+    return this.patientService.updateContact(upid, contactDto);
   }
 
   // ✅ Delete only the contact details
   @ApiOperation({ summary: 'Delete contact details of a patient' })
   @ApiResponse({ status: 200, description: 'Contact deleted successfully' })
-  @Delete(':id/contact')
-  deleteContact(@Param('id') id: string) {
-    return this.patientService.deleteContact(id);
+  @Delete(':upid/contact')
+  deleteContact(@Param('upid') upid: string) {
+    return this.patientService.deleteContact(upid);
   }
   }
