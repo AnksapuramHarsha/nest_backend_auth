@@ -2,7 +2,8 @@ import {
   EmailField,
   PasswordField,
   StringField,
-  EnumField
+  EnumField,
+  UUIDField
 } from '../../../decorators/field.decorators.ts';
 import { RoleType } from '../../../constants/role-type.ts';
 
@@ -25,4 +26,10 @@ export class UserRegisterDto {
 
   @EnumField(() => RoleType)
   readonly role!: RoleType;
+
+  @UUIDField()
+  readonly organizationId!: string;
+
+  @UUIDField()
+  readonly networkId!: string;
 }

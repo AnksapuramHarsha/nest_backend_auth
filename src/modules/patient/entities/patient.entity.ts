@@ -1,5 +1,5 @@
 // src/patient/entities/patient.entity.ts
-import { Column, Entity, JoinColumn,ManyToOne,  CreateDateColumn, UpdateDateColumn, Unique, VersionColumn, PrimaryColumn } from 'typeorm';
+import { Column, Entity, JoinColumn,ManyToOne,  CreateDateColumn, UpdateDateColumn,  VersionColumn, PrimaryColumn } from 'typeorm';
 import { PatientTranslation } from './patient-translation.entity';
 import { Organization } from '../../organization/entities/organization.entity';
 import { Network } from '../../network/entities/network.entity';
@@ -26,15 +26,14 @@ export enum BiologicalSex {
 }
 
 @Entity('patient')
-@Unique(['networkId', 'upid'])
 export class Patient {
 
 
   @PrimaryColumn({ name: 'upid', type: 'varchar', length: 50}) // ✅ UPID is now the primary key
   upid!: string;
 
-  @Column({ name: 'network_id', type: 'uuid' })
-  networkId!: string;
+//   @Column({ name: 'network_id', type: 'uuid' })
+//   networkId!: string;
 
   @Column({ name: 'abha', length: 50, nullable: true })
   abha?: string;
@@ -91,9 +90,9 @@ export class Patient {
   @Column({ name: 'address', type: 'json', nullable: true })
   address?: Record<string, any>;
 
-  @ManyToOne(() => Organization, { nullable: false })
-@JoinColumn({ name: 'organization_id' })
-organization!: Organization;
+//   @ManyToOne(() => Organization, { nullable: false })
+// @JoinColumn({ name: 'organization_id' })
+// organization!: Organization;
 
   @Column({ name: 'contact', type: 'json', nullable: true })
   contact?: Record<string, any> | null;
@@ -168,9 +167,9 @@ organization!: Organization;
   @VersionColumn({ name: 'version', default: 1 })
   version!: number;
 
-  @ManyToOne(() => Network, { nullable: false, eager: true }) 
-  @JoinColumn({ name: 'network_id' })
-  network!: Network;
+//   @ManyToOne(() => Network, { nullable: false, eager: true }) 
+//   @JoinColumn({ name: 'network_id' })
+//   network!: Network;
 
   @ManyToOne(() => UserEntity, { nullable: true })
   @JoinColumn({ name: 'created_by' })
@@ -187,9 +186,16 @@ organization!: Organization;
   @JoinColumn({ name: 'status_id' })
   registrationStatus?: PatientRegistrationStatus;
 
-  @Column({ name: 'organization_id', type: 'uuid' })
-organizationId!: string;
+//   @Column({ name: 'organization_id', type: 'uuid' })
+// organizationId!: string;
 
+@ManyToOne(() => Organization, { nullable: false })
+@JoinColumn({ name: 'organization_id' })
+organization!: Organization;
+
+@ManyToOne(() => Network, { nullable: false })
+@JoinColumn({ name: 'network_id' })
+network!: Network;
   
 
 } 

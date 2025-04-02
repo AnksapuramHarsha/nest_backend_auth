@@ -28,28 +28,10 @@ import {
         @Body() createPatientDto: CreatePatientDto, 
         @Request() req: RequestWithUser
     ): Promise<PatientResponseDto> {
-      // Set created and updated by from the authenticated user
+        console.log('✅ req.user content:', JSON.stringify(req.user, null, 2));
+
         const userId = req.user.id ;
-    //   const userEntity: UserEntity = {
-    //     ...req.user,
-    //     firstName: '', // Add appropriate values
-    //     lastName: '',  // Add appropriate values
-    //     email: '',     // Add appropriate values
-    //     password: '',  // Add appropriate values
-    //     phone: '',     // Add appropriate values
-    //     avatar: '',    // Add appropriate values
-    //     fullName: '',  // Add appropriate values
-    //     createdAt: new Date(), // Add appropriate values
-    //     updatedAt: new Date(), // Add appropriate values
-    //     role: req.user.role as RoleType,
-    //     id: req.user.id as unknown as Uuid,
-    //     toDto: () => ({
-    //       username: req.user.username,
-    //       id: req.user.id as unknown as Uuid,
-    //       createdAt: new Date(),
-    //       updatedAt: new Date(),
-    //     }),
-    //   };
+  
     return this.patientService.create(
         { ...createPatientDto, createdBy: userId, updatedBy: userId }, 
         req.user, 

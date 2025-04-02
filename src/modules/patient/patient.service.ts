@@ -10,8 +10,8 @@ import { UserEntity } from 'modules/user/user.entity';
 import { ContactDTO } from './dto/create-patient.dto';
 import { Configuration } from '../config/entities/config.entity'; // Adjust the path as needed
 import { PatientRegistrationStatus } from './entities/patient-registration-status.entity';
-import { Organization } from '../organization/entities/organization.entity'; // Adjust the path as needed
-import { Network } from '../network/entities/network.entity'; // Adjust the path as needed
+// import { Organization } from '../organization/entities/organization.entity'; // Adjust the path as needed
+// import { Network } from '../network/entities/network.entity'; // Adjust the path as needed
 
 
 @Injectable()
@@ -25,19 +25,19 @@ export class PatientService {
     private patientRegistrationStatusRepository: Repository<PatientRegistrationStatus>,
     @InjectRepository(Configuration) 
     private readonly configRepository: Repository<Configuration>,
-    @InjectRepository(Organization)
-    private readonly organizationRepository: Repository<Organization>,
-    @InjectRepository(Network)
-    private readonly networkRepository: Repository<Network>
+    // @InjectRepository(Organization)
+    // private readonly organizationRepository: Repository<Organization>,
+    // @InjectRepository(Network)
+    // private readonly networkRepository: Repository<Network>
   ) {}
 
-  async generateUPID(patient: Patient): Promise<string> {
+  async generateUPID(patient: Patient, user: UserEntity): Promise<string> {
     console.log("🚀 generateUPID() running...");
 
     const config = await this.configRepository.findOne({
       where: { category: 'upid', key: 'format',
-        networkId: patient.networkId,           // ✅ explicitly include
-        organizationId: patient.organizationId, },
+        networkId: user.network?.id,           // ✅ explicitly include
+        organizationId: patient.organization.id, },
     });
 
     if (!config || !config.value?.format) {
@@ -49,12 +49,12 @@ export class PatientService {
     const uniqueCounter = config.value.uniqueCounter || 1;
 
     // ✅ Fetch values dynamically
-    const orgCode = components.includes('ORG') && patient.organization
-      ? patient.organization.name.slice(0, 3).toUpperCase() 
+    const orgCode = components.includes('ORG') && user.organization
+      ? user.organization.name.slice(0, 3).toUpperCase() 
       : 'ORG';
     
-    const netCode = components.includes('NET') && patient.network
-      ? patient.network.name.slice(0, 3).toUpperCase() 
+    const netCode = components.includes('NET') && user.network
+      ? user.network.name.slice(0, 3).toUpperCase() 
       : 'NET';
 
     const userCode = components.includes('USER') && patient.creator
@@ -82,26 +82,6 @@ export class PatientService {
 
   async create(createPatientDto: CreatePatientDto, user: UserEntity, language: string): Promise<PatientResponseDto> {
     try {
-      // Check if patient with same UPID exists in the network
-      
-        console.log(createPatientDto);
-        const organization = await this.organizationRepository.findOne({
-            where: { id: createPatientDto.organizationId },
-          });
-
-          if (!organization) {
-            throw new Error(`Organization with id ${createPatientDto.organizationId} not found`);
-          }
-
-          const network = await this.networkRepository.findOne({
-            where: { id: createPatientDto.networkId },
-          });
-          if (!network) {
-            throw new Error(`Network with id ${createPatientDto.networkId} not found`);
-          }
-      
-
-      // Process dates
       const patient = this.patientRepository.create({
         ...createPatientDto,
         birthDate: createPatientDto.birthDate ? new Date(createPatientDto.birthDate) : null,
@@ -109,14 +89,14 @@ export class PatientService {
         preferredLanguage: language,
         createdBy: user.id,
         updatedBy: user.id,
-        organization: organization,  // ✅ explicitly assigned
-        network: network,
+        organization: {id: user.organization?.id}, // ✅ explicitly assigned
+        network: {id: user.network?.id}, // ✅ explicitly assigned
         // Set default status to NEW (statusId: 1)
         statusId: createPatientDto.statusId || 1,
       });
 
       // ✅ Call generateUPID() before saving
-      patient.upid = await this.generateUPID(patient);
+      patient.upid = await this.generateUPID(patient, user);
 
       const savedPatient = await this.patientRepository.save(patient);
 
@@ -153,7 +133,7 @@ export class PatientService {
 
   async findByNetwork(networkId: string): Promise<PatientResponseDto[]> {
     const patients = await this.patientRepository.find({
-      where: { networkId },
+      where: { network: { id: networkId } },
       relations: ['registrationStatus'],
       order: {
         nameFamily: 'ASC',
@@ -180,7 +160,7 @@ export class PatientService {
   async findByUpid(networkId: string, upid: string): Promise<PatientResponseDto> {
     const patient = await this.patientRepository.findOne({
       where: { 
-        networkId,
+        network: { id: networkId },
         upid,
       },
       relations: ['registrationStatus'],
@@ -304,7 +284,7 @@ export class PatientService {
 
     return {
       upid: patient.upid,
-      networkId: patient.networkId,
+      networkId: patient.network.id,
       abha: patient.abha,
       mrn: patient.mrn,
       identifier: patient.identifier,

@@ -7,8 +7,9 @@ import {
   Post,
   Req,
   Version,
+  
 } from '@nestjs/common';
-import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
+import { ApiOkResponse, ApiTags, ApiBody , ApiConsumes} from '@nestjs/swagger';
 
 import { RoleType } from '../../constants/role-type.ts';
 import { AuthUser } from '../../decorators/auth-user.decorator.ts';
@@ -44,25 +45,56 @@ export class AuthController {
     console.log('Incoming Data (Raw):', req.body);
     const userEntity = await this.authService.validateUser(userLoginDto);
 
-    const token = await this.authService.createAccessToken({
-      userId: userEntity.id,
-      role: userEntity.role,
-    });
+    const token = await this.authService.createAccessToken(userEntity);
 
     return new LoginPayloadDto(userEntity.toDto(), token);
   }
 
   @Post('register')
-  @HttpCode(HttpStatus.OK)
-  @ApiOkResponse({ type: UserDto, description: 'Successfully Registered' })
-  @ApiFile({ name: 'avatar' })
- async userRegister(
+@HttpCode(HttpStatus.OK)
+@ApiConsumes('multipart/form-data')
+@ApiBody({
+  schema: {
+    type: 'object',
+    properties: {
+      firstName: { type: 'string', example: 'Alice' },
+      lastName: { type: 'string', example: 'Smith' },
+      email: { type: 'string', example: 'alice.smith@example.com' },
+      password: { type: 'string', example: 'SecurePass123!' },
+      phone: { type: 'string', example: '+1234567890' },
+      role: { type: 'string', enum: ['USER', 'ADMIN'], example: 'USER' },
+      organizationId: { type: 'string', format: 'uuid', example: 'd3b5dfe8-85cd-4921-8d06-b5eef0998664' },
+      networkId: { type: 'string', format: 'uuid', example: '82f4cdc9-2945-4345-95db-3f1f9e640bbf' },
+      avatar: { type: 'string', format: 'binary' },
+    },
+    required: ['firstName', 'lastName', 'email', 'password', 'role', 'organizationId', 'networkId'],
+  },
+})
+@ApiOkResponse({
+  type: UserDto,
+  description: 'Successfully Registered',
+  schema: {
+    example: {
+      id: '0e8f4e92-7894-4e9b-9f4c-53b0c4b9e4c1',
+      firstName: 'Alice',
+      lastName: 'Smith',
+      email: 'alice.smith@example.com',
+      phone: '+1234567890',
+      role: 'USER',
+      organizationId: 'd3b5dfe8-85cd-4921-8d06-b5eef0998664',
+      networkId: '82f4cdc9-2945-4345-95db-3f1f9e640bbf',
+      createdAt: '2025-03-30T12:00:00Z',
+      updatedAt: '2025-03-30T12:00:00Z',
+    },
+  },
+})
+@ApiFile({ name: 'avatar' })
+async userRegister(
   @Body() userRegisterDto: UserRegisterDto,
-   // Add this to handle file uploads
 ): Promise<UserDto> {
   const createdUser = await this.userService.createUser(
     userRegisterDto,
-    userRegisterDto.role, // Get role from the DTO
+    userRegisterDto.role,
   );
 
   return createdUser.toDto({

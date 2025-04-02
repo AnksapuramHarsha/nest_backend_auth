@@ -91,9 +91,7 @@ export class EmergencyContactDTO {
 // src/patient/dto/create-patient.dto.ts
 
 export class CreatePatientDto {
-  @IsUUID()
-  @IsNotEmpty()
-  networkId!: string;
+
 
   @IsString()
   @IsOptional()
@@ -223,9 +221,6 @@ export class CreatePatientDto {
   @IsOptional()
   updatedBy!: string;
 
-  @IsUUID()
-  @IsNotEmpty()
-  organizationId!: string;
 }
 
 

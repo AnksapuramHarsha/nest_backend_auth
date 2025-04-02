@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { validateHash } from '../../common/utils.ts';
-import type { RoleType } from '../../constants/role-type.ts';
 import { TokenType } from '../../constants/token-type.ts';
 import { UserNotFoundException } from '../../exceptions/user-not-found.exception.ts';
 import { ApiConfigService } from '../../shared/services/api-config.service.ts';
@@ -18,16 +17,31 @@ export class AuthService {
     private userService: UserService,
   ) {}
 
-  async createAccessToken(data: {
-    role: RoleType;
-    userId: Uuid;
-  }): Promise<TokenPayloadDto> {
+  async login(user: UserEntity) {
+    const payload = {
+      userId: user.id,
+      email: user.email,
+      role: user.role,
+      organization: user.organization?.id,
+      network: user.network?.id,
+      type: TokenType.ACCESS_TOKEN,
+    };
+
+    return {
+      accessToken: this.jwtService.sign(payload),
+    };
+  }
+
+  async createAccessToken(user: UserEntity): Promise<TokenPayloadDto> {
     return new TokenPayloadDto({
       expiresIn: this.configService.authConfig.jwtExpirationTime,
       accessToken: await this.jwtService.signAsync({
-        userId: data.userId,
+        id: user.id,
+        email: user.email,
+        role: user.role,
+        organization: user.organization?.id,
+        network: user.network?.id,
         type: TokenType.ACCESS_TOKEN,
-        role: data.role,
       }),
     });
   }
