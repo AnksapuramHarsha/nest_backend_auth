@@ -6,7 +6,7 @@ import {
   Query,
   ValidationPipe,
 } from '@nestjs/common';
-import { ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiResponse, ApiTags, ApiParam} from '@nestjs/swagger';
 
 import { PageDto } from '../../common/dto/page.dto.ts';
 import { RoleType } from '../../constants/role-type.ts';
@@ -49,14 +49,6 @@ export class UserController {
     description: 'Get users list',
     type: PageDto,
   })
-  
-//   getUsers(
-//     @Query(new ValidationPipe({ transform: true }))
-//     pageOptionsDto: UsersPageOptionsDto,
-//   ): Promise<PageDto<UserDto>> {
-//     return this.userService.getUsers(pageOptionsDto);
-//   }
-@Get()
 async getUsers(
     @Query(new ValidationPipe({
       transform: true,
@@ -73,6 +65,7 @@ async getUsers(
   @Get(':id')
   @Auth([RoleType.USER])
   @HttpCode(HttpStatus.OK)
+  @ApiParam({ name: 'id', type: 'string', description: 'User ID (UUID)' })
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'Get users list',

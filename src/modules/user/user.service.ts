@@ -275,9 +275,12 @@ export class UserService {
       sanitized: safePageOptions
     });
 
-    const queryBuilder = this.userRepository
-      .createQueryBuilder('user')
-      .leftJoinAndSelect('user.role', 'role');
+    const queryBuilder = this.userRepository.createQueryBuilder('user');
+
+    // no join for `role`, just use it directly
+    queryBuilder.addSelect('user.role'); // optional, if role is excluded by default
+
+    queryBuilder.orderBy('user.createdAt', 'DESC'); 
 
     const [items, pageMetaDto] = await queryBuilder.paginate(safePageOptions);
     return items.toPageDto(pageMetaDto);
@@ -286,7 +289,7 @@ export class UserService {
   async getUser(userId: Uuid): Promise<UserDto> {
     const queryBuilder = this.userRepository.createQueryBuilder('user');
 
-    queryBuilder.where('user.id = :userId', { userId }).leftJoinAndSelect('user.role', 'role');
+    queryBuilder.where('user.id = :userId', { userId }).addSelect('user.role');
 
     const userEntity = await queryBuilder.getOne();
 
